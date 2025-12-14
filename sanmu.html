@@ -13,15 +13,15 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- ★【新增】引入 LINE LIFF SDK -->
+  <!-- 引入 LINE LIFF SDK -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
     :root {
-      --primary: #8b7360;    /* 深棕色文字 */
-      --secondary: #c4a890;  /* 淺棕色強調 */
-      --accent: #b39780;     /* 按鈕懸停色 */
-      --gold: #d4af37;       /* 特殊優惠色 */
+      --primary: #8b7360;    
+      --secondary: #c4a890;  
+      --accent: #b39780;     
+      --gold: #d4af37;       
       --bg-gradient-start: #f5f1ed;
       --bg-gradient-end: #ede6e0;
       --glass-bg: rgba(255, 255, 255, 0.85);
@@ -36,7 +36,7 @@
       color: var(--primary);
       min-height: 100vh;
       margin: 0;
-      padding-bottom: 120px; /* 增加底部空間 */
+      padding-bottom: 120px; 
     }
 
     /* Header */
@@ -371,7 +371,7 @@
     // --- Config ---
     const CONFIG = {
       lineId: '@645yivpf', 
-      liffId: '2008690421-lH8r4KB6', // ★您的 LIFF ID
+      liffId: '2008690421-lH8r4KB6', 
       scriptUrl: 'https://script.google.com/macros/s/AKfycbx5KlGehfTOsSOILwtGN_ATcLLNHArTigx2lbzLo2rJI65HD5-US28z2qYvq7cfjqIh/exec',
       images: {
         '海島莓果能量碗': 'https://lh3.googleusercontent.com/d/1GNyEZ0HcvDM_S2CUkbteWa2Zhtdkq54q',
@@ -400,19 +400,25 @@
     async function initLiff() {
       try {
         await liff.init({ liffId: CONFIG.liffId });
+        // 除錯: 檢查是否在 LIFF 瀏覽器內
+        if (liff.isInClient()) {
+            console.log("LIFF Init success via LINE");
+        } else {
+            console.log("LIFF Init success via External Browser");
+        }
       } catch (err) {
         console.error('LIFF Init failed', err);
+        // 如果初始化就失敗，提醒使用者
+        alert('LIFF 初始化失敗：' + err.message);
       }
     }
 
     function init() {
-      initLiff(); // 啟動 LIFF
+      initLiff(); 
       renderSection('grid-yogurt', MENU.yogurt, '🥣');
       renderSection('grid-drinks', MENU.drinks, '🥤');
       renderSection('grid-alcohol', MENU.alcohol, '🍷');
     }
-
-    // ... (中間渲染邏輯不變) ...
 
     function renderSection(elementId, items, icon) {
       document.getElementById(elementId).innerHTML = items.map(item => {
@@ -508,7 +514,7 @@
       return message;
     }
 
-    // --- ★★★ 核心：LIFF 結帳邏輯 ★★★ ---
+    // --- ★★★ 核心：LIFF 結帳邏輯 (Debug 版) ★★★ ---
     async function processLiffCheckout() {
       const items = Object.entries(cart);
       if (items.length === 0) return;
@@ -521,18 +527,29 @@
       // 2. 判斷是否在 LINE 內
       if (liff.isInClient()) {
         try {
-          // 直接發送訊息到聊天室
+          // --- 新增權限檢查 ---
+          // 嘗試發送訊息
           await liff.sendMessages([{ type: 'text', text: message }]);
+          
           liff.closeWindow(); // 發送後關閉視窗
         } catch (error) {
           console.error('LIFF send error', error);
-          alert('自動發送失敗，請使用複製功能');
+          
+          // --- 詳細錯誤提示 ---
+          let errorMsg = '發送失敗：' + error.message;
+          if (error.code === '403' || error.message.includes('permission') || error.message.includes('Scope')) {
+             errorMsg = '❌ 權限不足！請至 LINE Developers Console 開啟 "chat_message.write" 權限。';
+          } else if (error.message.includes('context')) {
+             errorMsg = '❌ 傳送失敗！請確認您是從「聊天室」點擊連結進入，而非直接掃描 QR Code 或從外部瀏覽器開啟。';
+          }
+          
+          alert(errorMsg);
           fallbackCopy(message, true);
         }
       } else {
-        // 如果在外部瀏覽器 (Chrome/Safari)，回退到舊的跳轉方式
+        // 如果在外部瀏覽器 (Chrome/Safari)
+        alert('偵測到您不在 LINE 內部瀏覽器，將為您複製訂單並跳轉。');
         fallbackCopy(message, true);
-        // 使用 Profile Link 確保能打開 LINE
         window.location.href = `https://line.me/R/ti/p/${CONFIG.lineId}`;
       }
     }
@@ -563,7 +580,7 @@
       textArea.select(); textArea.setSelectionRange(0, 99999);
       try { 
         document.execCommand('copy'); 
-        if (isAuto) { showToast("已複製！"); } else { showToast("已複製！"); }
+        if (isAuto) { showToast("已複製，請貼上！"); } else { showToast("已複製！"); }
       } catch (err) {}
       document.body.removeChild(textArea);
     }
