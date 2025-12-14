@@ -218,6 +218,31 @@
     }
     .toast.show { opacity: 1; }
 
+    /* ★★★ DEBUG CONSOLE ★★★ */
+    #debug-console {
+        position: fixed; bottom: 0; left: 0; width: 100%; height: 100px;
+        background: rgba(0,0,0,0.8); color: #00ff00; font-family: monospace; font-size: 10px;
+        padding: 5px; overflow-y: auto; z-index: 9999; display: none; /* 預設隱藏，有錯才開 */
+    }
+
+    /* ★★★ FALLBACK MODAL (保證跳轉視窗) ★★★ */
+    #fallback-modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); z-index: 999;
+        display: none; align-items: center; justify-content: center;
+    }
+    .fallback-box {
+        background: white; width: 85%; max-width: 400px; padding: 30px 20px;
+        border-radius: 20px; text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .fallback-btn {
+        display: block; width: 100%; background: #06C755; color: white;
+        padding: 16px; border-radius: 12px; text-decoration: none;
+        font-weight: bold; font-size: 18px; margin-top: 20px;
+        box-shadow: 0 4px 10px rgba(6, 199, 85, 0.3);
+    }
+
   </style>
 </head>
 <body>
@@ -367,10 +392,26 @@
 
   <div id="toast" class="toast"></div>
 
+  <!-- ★★★ Fallback Modal (保證跳轉視窗) ★★★ -->
+  <div id="fallback-modal">
+      <div class="fallback-box">
+          <div style="font-size: 50px; margin-bottom: 10px;">📲</div>
+          <h3 style="font-size: 20px; font-weight: bold; color: #333; margin-bottom: 10px;">準備傳送訂單</h3>
+          <p style="color: #666; font-size: 14px; margin-bottom: 10px;">請點擊下方按鈕，將自動開啟 LINE 聊天室並貼上內容。</p>
+          <a id="final-link" href="#" class="fallback-btn" target="_parent">
+             🚀 點此開啟 LINE 傳送
+          </a>
+          <button onclick="document.getElementById('fallback-modal').style.display='none'" style="margin-top: 15px; background: none; border: none; color: #999; text-decoration: underline;">取消</button>
+      </div>
+  </div>
+
+  <!-- Debug Console -->
+  <div id="debug-console"></div>
+
   <script>
     // --- Config ---
     const CONFIG = {
-      lineId: '@645yivpf', 
+      lineId: '@645yivpf', // 您的 Line ID
       liffId: '2008690421-lH8r4KB6', 
       scriptUrl: 'https://script.google.com/macros/s/AKfycbx5KlGehfTOsSOILwtGN_ATcLLNHArTigx2lbzLo2rJI65HD5-US28z2qYvq7cfjqIh/exec',
       images: {
@@ -396,20 +437,23 @@
 
     let cart = {};
 
+    function logDebug(msg) {
+        const consoleEl = document.getElementById('debug-console');
+        if (consoleEl) {
+            const time = new Date().toLocaleTimeString();
+            consoleEl.innerHTML += `[${time}] ${msg}<br>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+        console.log(msg);
+    }
+
     // --- LIFF 初始化 ---
     async function initLiff() {
       try {
         await liff.init({ liffId: CONFIG.liffId });
-        // 除錯: 檢查是否在 LIFF 瀏覽器內
-        if (liff.isInClient()) {
-            console.log("LIFF Init success via LINE");
-        } else {
-            console.log("LIFF Init success via External Browser");
-        }
+        logDebug("LIFF Init: " + (liff.isInClient() ? "In App" : "External"));
       } catch (err) {
-        console.error('LIFF Init failed', err);
-        // 如果初始化就失敗，提醒使用者
-        alert('LIFF 初始化失敗：' + err.message);
+        logDebug("LIFF Init Error: " + err.message);
       }
     }
 
@@ -514,43 +558,46 @@
       return message;
     }
 
-    // --- ★★★ 核心：LIFF 結帳邏輯 (Debug 版) ★★★ ---
-    async function processLiffCheckout() {
-      const items = Object.entries(cart);
-      if (items.length === 0) return;
+    // --- ★★★ 核心：保證送出版 ★★★ ---
+    function processLiffCheckout() {
+      try {
+          const items = Object.entries(cart);
+          if (items.length === 0) return;
 
-      const message = generateOrderMessage();
-      
-      // 1. 背景發送資料 (Apps Script)
-      trySendJSON(items);
+          const message = generateOrderMessage();
+          
+          // 1. 背景傳送資料 (不等待)
+          setTimeout(() => { trySendJSON(items); }, 10);
 
-      // 2. 判斷是否在 LINE 內
-      if (liff.isInClient()) {
-        try {
-          // --- 新增權限檢查 ---
-          // 嘗試發送訊息
-          await liff.sendMessages([{ type: 'text', text: message }]);
+          // 2. 準備連結
+          const encodedMsg = encodeURIComponent(message);
+          const oaMessageUrl = `https://line.me/R/oaMessage/${CONFIG.lineId}/?${encodedMsg}`;
           
-          liff.closeWindow(); // 發送後關閉視窗
-        } catch (error) {
-          console.error('LIFF send error', error);
-          
-          // --- 詳細錯誤提示 ---
-          let errorMsg = '發送失敗：' + error.message;
-          if (error.code === '403' || error.message.includes('permission') || error.message.includes('Scope')) {
-             errorMsg = '❌ 權限不足！請至 LINE Developers Console 開啟 "chat_message.write" 權限。';
-          } else if (error.message.includes('context')) {
-             errorMsg = '❌ 傳送失敗！請確認您是從「聊天室」點擊連結進入，而非直接掃描 QR Code 或從外部瀏覽器開啟。';
+          // 3. 設定手動按鈕的連結
+          document.getElementById('final-link').href = oaMessageUrl;
+
+          // 4. 判斷環境
+          if (liff.isInClient()) {
+              // 嘗試自動發送
+              liff.sendMessages([{ type: 'text', text: message }])
+                  .then(() => {
+                      liff.closeWindow();
+                  })
+                  .catch((err) => {
+                      logDebug("Auto send failed: " + err.message);
+                      // ★★★ 自動失敗 -> 顯示大按鈕視窗 ★★★
+                      document.getElementById('fallback-modal').style.display = 'flex';
+                  });
+          } else {
+              // 外部瀏覽器 -> 直接顯示大按鈕視窗
+              // (不嘗試自動跳轉了，直接讓使用者點擊最穩)
+              fallbackCopy(message, false); // 靜默複製備用
+              document.getElementById('fallback-modal').style.display = 'flex';
           }
-          
-          alert(errorMsg);
-          fallbackCopy(message, true);
-        }
-      } else {
-        // 如果在外部瀏覽器 (Chrome/Safari)
-        alert('偵測到您不在 LINE 內部瀏覽器，將為您複製訂單並跳轉。');
-        fallbackCopy(message, true);
-        window.location.href = `https://line.me/R/ti/p/${CONFIG.lineId}`;
+
+      } catch (e) {
+          logDebug("Error: " + e.message);
+          alert("發生錯誤，請截圖通知店家：" + e.message);
       }
     }
 
@@ -569,20 +616,20 @@
     function copyOrder() {
       const message = generateOrderMessage();
       fallbackCopy(message, false);
+      showToast("已複製，請貼上！");
     }
 
     function fallbackCopy(text, isAuto) {
-      var textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0";
-      textArea.setAttribute('readonly', '');
-      document.body.appendChild(textArea);
-      textArea.select(); textArea.setSelectionRange(0, 99999);
-      try { 
-        document.execCommand('copy'); 
-        if (isAuto) { showToast("已複製，請貼上！"); } else { showToast("已複製！"); }
+      try {
+          var textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0";
+          textArea.setAttribute('readonly', '');
+          document.body.appendChild(textArea);
+          textArea.select(); textArea.setSelectionRange(0, 99999);
+          document.execCommand('copy'); 
+          document.body.removeChild(textArea);
       } catch (err) {}
-      document.body.removeChild(textArea);
     }
 
     function showToast(html) {
