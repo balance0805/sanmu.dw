@@ -218,13 +218,6 @@
     }
     .toast.show { opacity: 1; }
 
-    /* ★★★ DEBUG CONSOLE ★★★ */
-    #debug-console {
-        position: fixed; bottom: 0; left: 0; width: 100%; height: 100px;
-        background: rgba(0,0,0,0.8); color: #00ff00; font-family: monospace; font-size: 10px;
-        padding: 5px; overflow-y: auto; z-index: 9999; display: none; /* 預設隱藏，有錯才開 */
-    }
-
     /* ★★★ FALLBACK MODAL (保證跳轉視窗) ★★★ */
     #fallback-modal {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -296,8 +289,9 @@
         <h3>📝 點餐流程 (可至櫃台直接點餐)</h3>
         <p>1. 選購餐點後，點擊「去結帳」。</p>
         <p>2. 點擊「傳送訂單給三木」。</p>
-        <p>3. 系統將自動發送訂單至 LINE (免貼上)。</p>
-        <p>4. 若未自動發送，請點「複製」並手動傳送。</p>
+        <!-- ★★★ 更新流程說明 ★★★ -->
+        <p>3. 系統將自動發送訂單至 LINE 加入好友後送出。</p>
+        <p>4. 送出訂單後至櫃台確認訂單並結帳。</p>
       </div>
       <div class="info-card">
         <h3>📋 店內須知</h3>
@@ -354,8 +348,11 @@
           📋 僅複製內容 (若自動發送失敗)
         </button>
       </div>
+
+      <!-- ★★★ 已移除舊版救援區域，並新增確認文字 ★★★ -->
+      <p style="text-align: center; color: #d4af37; font-weight: bold; margin-top: 15px;">傳送訂單給三木後至櫃台確認訂單並結帳</p>
       
-      <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">
+      <p style="font-size: 12px; color: #999; text-align: center; margin-top: 5px;">
         *若您在 LINE 中開啟，訂單將自動發送。<br>
       </p>
     </div>
@@ -405,15 +402,13 @@
       </div>
   </div>
 
-  <!-- Debug Console -->
-  <div id="debug-console"></div>
-
   <script>
     // --- Config ---
     const CONFIG = {
       lineId: '@645yivpf', // 您的 Line ID
       liffId: '2008690421-lH8r4KB6', 
-      scriptUrl: 'https://script.google.com/macros/s/AKfycbx5KlGehfTOsSOILwtGN_ATcLLNHArTigx2lbzLo2rJI65HD5-US28z2qYvq7cfjqIh/exec',
+      // ★★★ 更新後的 Apps Script 網址 ★★★
+      scriptUrl: 'https://script.google.com/macros/s/AKfycbwPCxbt44bQAtf_zY1b0Kz1hrrnO3G1r6V-OqUow-Xq56tzDNKXP7Mab3UoRKs4UxxA/exec',
       images: {
         '海島莓果能量碗': 'https://lh3.googleusercontent.com/d/1GNyEZ0HcvDM_S2CUkbteWa2Zhtdkq54q',
         '粉紅夕陽碗': 'https://lh3.googleusercontent.com/d/1MPUdk_YDJWXu0c_zmxwRUu3Z2QISex8e',
@@ -437,23 +432,12 @@
 
     let cart = {};
 
-    function logDebug(msg) {
-        const consoleEl = document.getElementById('debug-console');
-        if (consoleEl) {
-            const time = new Date().toLocaleTimeString();
-            consoleEl.innerHTML += `[${time}] ${msg}<br>`;
-            consoleEl.scrollTop = consoleEl.scrollHeight;
-        }
-        console.log(msg);
-    }
-
     // --- LIFF 初始化 ---
     async function initLiff() {
       try {
         await liff.init({ liffId: CONFIG.liffId });
-        logDebug("LIFF Init: " + (liff.isInClient() ? "In App" : "External"));
       } catch (err) {
-        logDebug("LIFF Init Error: " + err.message);
+        console.error('LIFF Init failed', err);
       }
     }
 
@@ -566,7 +550,7 @@
 
           const message = generateOrderMessage();
           
-          // 1. 背景傳送資料 (不等待)
+          // 1. 背景傳送資料給記帳 Sheet (使用您指定的新 URL)
           setTimeout(() => { trySendJSON(items); }, 10);
 
           // 2. 準備連結
@@ -576,7 +560,7 @@
           // 3. 設定手動按鈕的連結
           document.getElementById('final-link').href = oaMessageUrl;
 
-          // 4. 判斷環境
+          // 4. 判斷環境並嘗試自動/手動
           if (liff.isInClient()) {
               // 嘗試自動發送
               liff.sendMessages([{ type: 'text', text: message }])
@@ -584,20 +568,18 @@
                       liff.closeWindow();
                   })
                   .catch((err) => {
-                      logDebug("Auto send failed: " + err.message);
+                      console.error("Auto send failed", err);
                       // ★★★ 自動失敗 -> 顯示大按鈕視窗 ★★★
                       document.getElementById('fallback-modal').style.display = 'flex';
                   });
           } else {
               // 外部瀏覽器 -> 直接顯示大按鈕視窗
-              // (不嘗試自動跳轉了，直接讓使用者點擊最穩)
               fallbackCopy(message, false); // 靜默複製備用
               document.getElementById('fallback-modal').style.display = 'flex';
           }
 
       } catch (e) {
-          logDebug("Error: " + e.message);
-          alert("發生錯誤，請截圖通知店家：" + e.message);
+          alert("發生錯誤：" + e.message);
       }
     }
 
@@ -606,8 +588,12 @@
         let total = 0, itemsString = "";
         items.forEach(([name, data]) => { itemsString += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
         const data = { items: itemsString, total: total, note: "網頁點餐(Live)" };
+        
+        // 使用 no-cors 模式，這是單向發送資料的標準做法
         fetch(CONFIG.scriptUrl, {
-            method: 'POST', mode: 'no-cors', keepalive: true,
+            method: 'POST', 
+            mode: 'no-cors', 
+            keepalive: true,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).catch(err => console.log('Track err', err));
