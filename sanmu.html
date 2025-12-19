@@ -236,9 +236,74 @@
         box-shadow: 0 4px 10px rgba(6, 199, 85, 0.3);
     }
 
+    /* ★★★ WELCOME MODAL (入場桌號選擇) ★★★ */
+    #welcome-modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(245, 241, 237, 0.95); z-index: 1000;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    .welcome-content {
+        background: white; width: 90%; max-width: 400px; padding: 32px 24px;
+        border-radius: 24px; text-align: center;
+        box-shadow: 0 10px 30px rgba(139, 115, 95, 0.15);
+        border: 1px solid rgba(255,255,255,0.8);
+    }
+    .welcome-btn {
+        width: 100%; padding: 16px; margin: 8px 0; border-radius: 16px;
+        font-size: 18px; font-weight: 700; border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: transform 0.1s;
+    }
+    .welcome-btn:active { transform: scale(0.98); }
+    .btn-dinein { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(139, 115, 95, 0.3); }
+    .btn-takeout { background: white; border: 2px solid var(--primary); color: var(--primary); }
+    
+    .input-group { margin-bottom: 16px; text-align: left; }
+    .input-label { display: block; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .input-field { 
+        width: 100%; padding: 12px; border: 1px solid #ddd; 
+        border-radius: 12px; font-size: 16px; background: #fdfbf9;
+    }
+
   </style>
 </head>
 <body>
+
+  <!-- ★★★ WELCOME MODAL (入場選擇) ★★★ -->
+  <div id="welcome-modal">
+      <div class="welcome-content">
+          <h2 style="font-size: 24px; font-weight: 700; color: #5a4a3a; margin-bottom: 8px;">歡迎光臨 SANMU</h2>
+          <p style="color: #8b7360; margin-bottom: 24px; font-size: 14px;">請選擇用餐方式</p>
+          
+          <!-- 步驟 1: 選擇內用/外帶 -->
+          <div id="welcome-step-1">
+              <button class="welcome-btn btn-dinein" onclick="selectOrderType('dinein')">
+                  🍽️ 內用點餐
+              </button>
+              <button class="welcome-btn btn-takeout" onclick="selectOrderType('takeout')">
+                  📖 觀看菜單
+              </button>
+          </div>
+
+          <!-- 步驟 2: 內用資訊 -->
+          <div id="welcome-step-2" style="display: none;">
+              <div class="input-group">
+                  <label class="input-label">請選擇桌號</label>
+                  <select id="table-number" class="input-field">
+                      <option value="" disabled selected>請選擇...</option>
+                      <!-- JS 會自動產生 1-4 桌 -->
+                  </select>
+              </div>
+              <div class="input-group">
+                  <label class="input-label">用餐人數</label>
+                  <input type="number" id="guest-count" class="input-field" placeholder="請輸入人數" min="1">
+              </div>
+              <button class="welcome-btn btn-dinein" onclick="confirmDineIn()">開始點餐</button>
+              <button style="background:none; border:none; color:#999; margin-top:12px; text-decoration:underline;" onclick="backToStep1()">返回重選</button>
+          </div>
+      </div>
+  </div>
 
   <header class="header">
     <h1>SANMU 三木</h1>
@@ -289,7 +354,6 @@
         <h3>📝 點餐流程 (可至櫃台直接點餐)</h3>
         <p>1. 選購餐點後，點擊「去結帳」。</p>
         <p>2. 點擊「傳送訂單給三木」。</p>
-        <!-- ★★★ 更新流程說明 ★★★ -->
         <p>3. 系統將自動發送訂單至 LINE 加入好友後送出。</p>
         <p>4. 送出訂單後至櫃台確認訂單並結帳。</p>
       </div>
@@ -349,7 +413,6 @@
         </button>
       </div>
 
-      <!-- ★★★ 已移除舊版救援區域，並新增確認文字 ★★★ -->
       <p style="text-align: center; color: #d4af37; font-weight: bold; margin-top: 15px;">傳送訂單給三木後至櫃台確認訂單並結帳</p>
       
       <p style="font-size: 12px; color: #999; text-align: center; margin-top: 5px;">
@@ -431,6 +494,9 @@
     };
 
     let cart = {};
+    
+    // ★★★ 訂單類型狀態 (內用/外帶) ★★★
+    let orderInfo = { type: '', table: '', guests: '' };
 
     // --- LIFF 初始化 ---
     async function initLiff() {
@@ -446,6 +512,49 @@
       renderSection('grid-yogurt', MENU.yogurt, '🥣');
       renderSection('grid-drinks', MENU.drinks, '🥤');
       renderSection('grid-alcohol', MENU.alcohol, '🍷');
+      
+      // ★★★ 自動產生 1-4 桌選項 ★★★
+      const tableSelect = document.getElementById('table-number');
+      for (let i = 1; i <= 4; i++) {
+          const option = document.createElement('option');
+          option.value = i;
+          option.text = `${i} 號桌`;
+          tableSelect.appendChild(option);
+      }
+    }
+
+    // ★★★ 處理訂單類型選擇邏輯 ★★★
+    function selectOrderType(type) {
+        if (type === 'takeout') {
+            orderInfo.type = '外帶';
+            closeWelcomeModal();
+        } else {
+            // 切換到步驟 2 (內用資訊)
+            document.getElementById('welcome-step-1').style.display = 'none';
+            document.getElementById('welcome-step-2').style.display = 'block';
+        }
+    }
+
+    function backToStep1() {
+        document.getElementById('welcome-step-2').style.display = 'none';
+        document.getElementById('welcome-step-1').style.display = 'block';
+    }
+
+    function confirmDineIn() {
+        const table = document.getElementById('table-number').value;
+        const guests = document.getElementById('guest-count').value;
+
+        if (!table) { alert('請選擇桌號'); return; }
+        if (!guests || guests <= 0) { alert('請輸入用餐人數'); return; }
+
+        orderInfo.type = '內用';
+        orderInfo.table = table;
+        orderInfo.guests = guests;
+        closeWelcomeModal();
+    }
+
+    function closeWelcomeModal() {
+        document.getElementById('welcome-modal').style.display = 'none';
     }
 
     function renderSection(elementId, items, icon) {
@@ -533,10 +642,21 @@
       if (cart[name]) { cart[name].qty += change; if (cart[name].qty <= 0) delete cart[name]; updateCartUI(); }
     }
 
+    // ★★★ 核心修改：生成包含訂單類型的訊息 ★★★
     function generateOrderMessage() {
       const items = Object.entries(cart);
       if (items.length === 0) return "";
-      let total = 0, message = "您好，我想點餐：\n------------------\n";
+      
+      let header = "";
+      if (orderInfo.type === '外帶') {
+          header = "【外帶】\n";
+      } else if (orderInfo.type === '內用') {
+          header = `【內用-桌號${orderInfo.table} (${orderInfo.guests}人)】\n`;
+      } else {
+          header = "【未選擇用餐方式】\n"; // 防呆
+      }
+
+      let total = 0, message = "您好，我想點餐：\n" + header + "------------------\n";
       items.forEach(([name, data]) => { message += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
       message += `------------------\n總金額：NT$ ${total}\n\n備註：`;
       return message;
@@ -550,7 +670,7 @@
 
           const message = generateOrderMessage();
           
-          // 1. 背景傳送資料給記帳 Sheet (使用您指定的新 URL)
+          // 1. 背景傳送資料給記帳 Sheet
           setTimeout(() => { trySendJSON(items); }, 10);
 
           // 2. 準備連結
@@ -586,10 +706,20 @@
     function trySendJSON(items) {
         if (!CONFIG.scriptUrl.startsWith('http')) return;
         let total = 0, itemsString = "";
+        
+        // 將內用/外帶資訊也加入字串前頭，方便 Sheet 紀錄
+        let typeStr = "";
+        if (orderInfo.type === '外帶') typeStr = "[外帶] ";
+        else if (orderInfo.type === '內用') typeStr = `[內用-桌號${orderInfo.table} (${orderInfo.guests}人)] `;
+
         items.forEach(([name, data]) => { itemsString += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
+        
+        // 把類型加在 items 字串最前面
+        itemsString = typeStr + "\n" + itemsString;
+
         const data = { items: itemsString, total: total, note: "網頁點餐(Live)" };
         
-        // 使用 no-cors 模式，這是單向發送資料的標準做法
+        // 使用 no-cors 模式
         fetch(CONFIG.scriptUrl, {
             method: 'POST', 
             mode: 'no-cors', 
