@@ -292,7 +292,7 @@
                   <label class="input-label">請選擇桌號</label>
                   <select id="table-number" class="input-field">
                       <option value="" disabled selected>請選擇...</option>
-                      <!-- JS 會自動產生 1-4 桌 -->
+                      <!-- JS 會自動產生 1-4 桌 和 吧台 -->
                   </select>
               </div>
               <div class="input-group">
@@ -370,7 +370,15 @@
     </div>
 
     <div id="qa" class="tab-content">
-      <div class="qa-item"><div class="qa-q">Q: 可以訂位嗎？</div><div class="qa-a">A: 目前不接受訂位，採現場候位制。</div></div>
+      <div class="qa-item">
+        <div class="qa-q">Q: 可以訂位嗎？</div>
+        <div class="qa-a">
+            A: 可至官方LINE預約 ID:@645yivpf 
+            <a href="https://line.me/R/ti/p/@645yivpf" target="_blank" style="display:inline-block; background:#06C755; color:white; padding:4px 10px; border-radius:12px; text-decoration:none; font-size:12px; margin-left:5px; font-weight:bold;">
+                🔗 點此預約
+            </a>
+        </div>
+      </div>
       <div class="qa-item"><div class="qa-q">Q: 有提供素食選項嗎？</div><div class="qa-a">A: 優格碗與大部分飲品皆為素食友善。</div></div>
       <div class="qa-item"><div class="qa-q">Q: 停車方便嗎？</div><div class="qa-a">A: 汽機車可停附近公有停車場。(步行10公尺)</div></div>
     </div>
@@ -517,7 +525,7 @@
       renderSection('grid-drinks', MENU.drinks, '🥤');
       renderSection('grid-alcohol', MENU.alcohol, '🍷');
       
-      // ★★★ 自動產生 1-4 桌選項 ★★★
+      // ★★★ 自動產生 1-4 桌選項 (含吧台) ★★★
       const tableSelect = document.getElementById('table-number');
       for (let i = 1; i <= 4; i++) {
           const option = document.createElement('option');
@@ -525,6 +533,11 @@
           option.text = `${i} 號桌`;
           tableSelect.appendChild(option);
       }
+      // 新增 吧台 選項
+      const barOption = document.createElement('option');
+      barOption.value = "吧台";
+      barOption.text = "吧台";
+      tableSelect.appendChild(barOption);
     }
 
     // ★★★ 處理訂單類型選擇邏輯 ★★★
