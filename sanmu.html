@@ -152,7 +152,7 @@
     .cart-total { font-size: 18px; font-weight: 700; }
     .checkout-btn { background: var(--secondary); color: white; border: none; padding: 8px 20px; border-radius: 30px; font-weight: 600; font-size: 14px; }
 
-    /* Modal */
+    /* Modal - General */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 60;
@@ -170,8 +170,34 @@
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
+    /* ★★★ 購物車專屬：全螢幕設定 ★★★ */
+    #cart-modal .modal-content {
+        height: 100%;
+        max-height: 100%;
+        max-width: 100%;
+        border-radius: 0;
+        padding-bottom: 40px;
+    }
+    @media (min-width: 640px) {
+        #cart-modal .modal-content {
+            border-radius: 24px; 
+            width: 90%;
+            height: 90%;
+            max-height: 90vh;
+        }
+    }
+
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
-    .cart-list { overflow-y: auto; flex: 1; margin-bottom: 20px; padding-right: 4px; }
+    
+    /* 修正列表高度 */
+    .cart-list { 
+        overflow-y: auto; 
+        flex: 1; /* 佔據剩餘空間 */
+        min-height: 150px; 
+        margin-bottom: 20px; 
+        padding-right: 4px; 
+    }
+    
     .cart-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .qty-controls { display: flex; align-items: center; gap: 12px; background: #f5f5f5; padding: 4px 8px; border-radius: 20px; }
     .qty-btn { width: 24px; height: 24px; border-radius: 50%; background: white; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); cursor: pointer; }
@@ -185,7 +211,7 @@
     .set-note { font-size: 13px; color: #888; text-decoration: line-through; margin-right: 8px; }
 
     /* Action Buttons */
-    .action-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .action-buttons { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
     
     .line-btn {
       width: 100%; background: #06C755; color: white; border: none; padding: 16px;
@@ -218,7 +244,7 @@
     }
     .toast.show { opacity: 1; }
 
-    /* ★★★ FALLBACK MODAL (保證跳轉視窗) ★★★ */
+    /* Fallback Modal */
     #fallback-modal {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.8); z-index: 999;
@@ -236,74 +262,45 @@
         box-shadow: 0 4px 10px rgba(6, 199, 85, 0.3);
     }
 
-    /* ★★★ WELCOME MODAL (入場桌號選擇) ★★★ */
-    #welcome-modal {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(245, 241, 237, 0.95); z-index: 1000;
-        display: flex; align-items: center; justify-content: center;
-        backdrop-filter: blur(5px);
+    /* Cart Info Section */
+    .cart-section {
+        background: #fdfbf9; border: 1px solid #e0d0c0;
+        border-radius: 16px; padding: 16px; margin-bottom: 20px;
+        flex-shrink: 0;
     }
-    .welcome-content {
-        background: white; width: 90%; max-width: 400px; padding: 32px 24px;
-        border-radius: 24px; text-align: center;
-        box-shadow: 0 10px 30px rgba(139, 115, 95, 0.15);
-        border: 1px solid rgba(255,255,255,0.8);
+    .radio-group { display: flex; gap: 10px; margin-bottom: 12px; }
+    .radio-label {
+        flex: 1; text-align: center; padding: 10px; border-radius: 10px;
+        border: 1px solid #ddd; cursor: pointer; font-weight: bold; font-size: 14px;
+        transition: all 0.2s;
     }
-    .welcome-btn {
-        width: 100%; padding: 16px; margin: 8px 0; border-radius: 16px;
-        font-size: 18px; font-weight: 700; border: none; cursor: pointer;
-        display: flex; align-items: center; justify-content: center; gap: 10px;
-        transition: transform 0.1s;
+    .radio-label.selected {
+        background: var(--primary); color: white; border-color: var(--primary);
     }
-    .welcome-btn:active { transform: scale(0.98); }
-    .btn-dinein { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(139, 115, 95, 0.3); }
-    .btn-takeout { background: white; border: 2px solid var(--primary); color: var(--primary); }
+    .dine-in-fields {
+        display: none; margin-top: 12px; padding-top: 12px;
+        border-top: 1px dashed #ddd; animation: fadeIn 0.3s ease;
+    }
+    .input-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
     
-    .input-group { margin-bottom: 16px; text-align: left; }
-    .input-label { display: block; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
-    .input-field { 
-        width: 100%; padding: 12px; border: 1px solid #ddd; 
-        border-radius: 12px; font-size: 16px; background: #fdfbf9;
+    .cart-input {
+        flex: 1; 
+        width: 0; 
+        min-width: 0; 
+        padding: 10px; 
+        height: 45px; 
+        border: 1px solid #ddd;
+        border-radius: 8px; 
+        font-size: 14px;
+        background: white;
+        color: #333;
+        box-sizing: border-box; 
+        line-height: normal; 
     }
 
   </style>
 </head>
 <body>
-
-  <!-- ★★★ WELCOME MODAL (入場選擇) ★★★ -->
-  <div id="welcome-modal">
-      <div class="welcome-content">
-          <h2 style="font-size: 24px; font-weight: 700; color: #5a4a3a; margin-bottom: 8px;">歡迎光臨 SANMU</h2>
-          <p style="color: #8b7360; margin-bottom: 24px; font-size: 14px;">請選擇用餐方式</p>
-          
-          <!-- 步驟 1: 選擇內用/外帶 -->
-          <div id="welcome-step-1">
-              <button class="welcome-btn btn-dinein" onclick="selectOrderType('dinein')">
-                  🍽️ 內用點餐
-              </button>
-              <button class="welcome-btn btn-takeout" onclick="selectOrderType('takeout')">
-                  📖 觀看菜單
-              </button>
-          </div>
-
-          <!-- 步驟 2: 內用資訊 -->
-          <div id="welcome-step-2" style="display: none;">
-              <div class="input-group">
-                  <label class="input-label">請選擇桌號</label>
-                  <select id="table-number" class="input-field">
-                      <option value="" disabled selected>請選擇...</option>
-                      <!-- JS 會自動產生 1-4 桌 和 吧台 -->
-                  </select>
-              </div>
-              <div class="input-group">
-                  <label class="input-label">用餐人數</label>
-                  <input type="number" id="guest-count" class="input-field" placeholder="請輸入人數" min="1">
-              </div>
-              <button class="welcome-btn btn-dinein" onclick="confirmDineIn()">開始點餐</button>
-              <button style="background:none; border:none; color:#999; margin-top:12px; text-decoration:underline;" onclick="backToStep1()">返回重選</button>
-          </div>
-      </div>
-  </div>
 
   <header class="header">
     <h1>SANMU 三木</h1>
@@ -409,13 +406,30 @@
         <p style="text-align: center; color: #999; margin-top: 40px;">購物車是空的</p>
       </div>
 
+      <!-- 用餐資訊填寫區 -->
+      <div class="cart-section" id="dining-info-section" style="display:none;">
+          <div style="font-weight:bold; color:#5a4a3a; margin-bottom:8px;">👇 請選擇用餐方式</div>
+          <div class="radio-group">
+              <div class="radio-label selected" id="opt-dinein" onclick="setOrderType('內用')">🍽️ 內用</div>
+              <div class="radio-label" id="opt-takeout" onclick="setOrderType('外帶')">🥡 外帶</div>
+          </div>
+          
+          <div id="dine-in-details" class="dine-in-fields" style="display:block;">
+              <div class="input-row">
+                  <select id="cart-table-select" class="cart-input">
+                      <option value="" disabled selected>選擇桌號</option>
+                      <!-- JS 自動生成 -->
+                  </select>
+                  <input type="number" id="cart-guest-input" class="cart-input" placeholder="人數" min="1">
+              </div>
+          </div>
+      </div>
+
       <div class="action-buttons">
-        <!-- ★★★ LIFF 專用按鈕 ★★★ -->
         <button id="btn-line-checkout" class="line-btn disabled" onclick="processLiffCheckout()">
           💬 傳送訂單給三木 (Line)
         </button>
         
-        <!-- 備用按鈕 (非 LINE 環境顯示) -->
         <button id="btn-copy-checkout" class="copy-btn" onclick="copyOrder()">
           📋 僅複製內容 (若自動發送失敗)
         </button>
@@ -460,7 +474,7 @@
 
   <div id="toast" class="toast"></div>
 
-  <!-- ★★★ Fallback Modal (保證跳轉視窗) ★★★ -->
+  <!-- Fallback Modal -->
   <div id="fallback-modal">
       <div class="fallback-box">
           <div style="font-size: 50px; margin-bottom: 10px;">📲</div>
@@ -478,7 +492,6 @@
     const CONFIG = {
       lineId: '@645yivpf', // 您的 Line ID
       liffId: '2008690421-lH8r4KB6', 
-      // ★★★ 更新後的 Apps Script 網址 ★★★
       scriptUrl: 'https://script.google.com/macros/s/AKfycbwPCxbt44bQAtf_zY1b0Kz1hrrnO3G1r6V-OqUow-Xq56tzDNKXP7Mab3UoRKs4UxxA/exec',
       images: {
         '海島莓果能量碗': 'https://lh3.googleusercontent.com/d/1GNyEZ0HcvDM_S2CUkbteWa2Zhtdkq54q',
@@ -506,11 +519,8 @@
     };
 
     let cart = {};
-    
-    // ★★★ 訂單類型狀態 (內用/外帶) ★★★
-    let orderInfo = { type: '', table: '', guests: '' };
+    let currentOrderType = '內用'; 
 
-    // --- LIFF 初始化 ---
     async function initLiff() {
       try {
         await liff.init({ liffId: CONFIG.liffId });
@@ -525,53 +535,34 @@
       renderSection('grid-drinks', MENU.drinks, '🥤');
       renderSection('grid-alcohol', MENU.alcohol, '🍷');
       
-      // ★★★ 自動產生 1-4 桌選項 (含吧台) ★★★
-      const tableSelect = document.getElementById('table-number');
+      const tableSelect = document.getElementById('cart-table-select');
       for (let i = 1; i <= 4; i++) {
           const option = document.createElement('option');
           option.value = i;
           option.text = `${i} 號桌`;
           tableSelect.appendChild(option);
       }
-      // 新增 吧台 選項
       const barOption = document.createElement('option');
       barOption.value = "吧台";
       barOption.text = "吧台";
       tableSelect.appendChild(barOption);
     }
 
-    // ★★★ 處理訂單類型選擇邏輯 ★★★
-    function selectOrderType(type) {
-        if (type === 'takeout') {
-            orderInfo.type = '外帶';
-            closeWelcomeModal();
+    function setOrderType(type) {
+        currentOrderType = type;
+        const dineBtn = document.getElementById('opt-dinein');
+        const takeBtn = document.getElementById('opt-takeout');
+        const details = document.getElementById('dine-in-details');
+
+        if (type === '內用') {
+            dineBtn.classList.add('selected');
+            takeBtn.classList.remove('selected');
+            details.style.display = 'block';
         } else {
-            // 切換到步驟 2 (內用資訊)
-            document.getElementById('welcome-step-1').style.display = 'none';
-            document.getElementById('welcome-step-2').style.display = 'block';
+            takeBtn.classList.add('selected');
+            dineBtn.classList.remove('selected');
+            details.style.display = 'none';
         }
-    }
-
-    function backToStep1() {
-        document.getElementById('welcome-step-2').style.display = 'none';
-        document.getElementById('welcome-step-1').style.display = 'block';
-    }
-
-    function confirmDineIn() {
-        const table = document.getElementById('table-number').value;
-        const guests = document.getElementById('guest-count').value;
-
-        if (!table) { alert('請選擇桌號'); return; }
-        if (!guests || guests <= 0) { alert('請輸入用餐人數'); return; }
-
-        orderInfo.type = '內用';
-        orderInfo.table = table;
-        orderInfo.guests = guests;
-        closeWelcomeModal();
-    }
-
-    function closeWelcomeModal() {
-        document.getElementById('welcome-modal').style.display = 'none';
     }
 
     function renderSection(elementId, items, icon) {
@@ -634,14 +625,22 @@
       document.querySelector('.cart-count').textContent = `已選 ${totalQty} 項`;
       document.querySelector('.cart-total').textContent = `NT$ ${totalPrice}`;
       totalQty > 0 ? bar.classList.add('visible') : (bar.classList.remove('visible'), closeCart(null, true));
-      if (document.getElementById('cart-modal').classList.contains('open')) renderCartList();
+      if (document.getElementById('cart-modal').classList.contains('open')) {
+          renderCartList();
+          document.getElementById('dining-info-section').style.display = 'block';
+      }
       
       const checkoutBtn = document.getElementById('btn-line-checkout');
       if (totalQty > 0) checkoutBtn.classList.remove('disabled');
       else checkoutBtn.classList.add('disabled');
     }
 
-    function openCart() { renderCartList(); document.getElementById('cart-modal').classList.add('open'); }
+    function openCart() { 
+        renderCartList(); 
+        document.getElementById('dining-info-section').style.display = 'block';
+        document.getElementById('cart-modal').classList.add('open'); 
+    }
+    
     function closeCart(e, force) { if (force || e.target.classList.contains('modal-overlay')) document.getElementById('cart-modal').classList.remove('open'); }
 
     function renderCartList() {
@@ -659,97 +658,91 @@
       if (cart[name]) { cart[name].qty += change; if (cart[name].qty <= 0) delete cart[name]; updateCartUI(); }
     }
 
-    // ★★★ 核心修改：生成包含訂單類型的訊息 ★★★
+    function getOrderTypeHeader() {
+        if (currentOrderType === '外帶') {
+            return "【外帶】\n";
+        } else {
+            const table = document.getElementById('cart-table-select').value;
+            const guests = document.getElementById('cart-guest-input').value;
+            if (!table) return null; 
+            if (!guests || guests <= 0) return null; 
+            return `【內用-桌號${table} (${guests}人)】\n`;
+        }
+    }
+
     function generateOrderMessage() {
       const items = Object.entries(cart);
       if (items.length === 0) return "";
-      
-      let header = "";
-      if (orderInfo.type === '外帶') {
-          header = "【外帶】\n";
-      } else if (orderInfo.type === '內用') {
-          header = `【內用-桌號${orderInfo.table} (${orderInfo.guests}人)】\n`;
-      } else {
-          header = "【未選擇用餐方式】\n"; // 防呆
-      }
-
-      let total = 0, message = "您好，我想點餐：\n" + header + "------------------\n";
+      const header = getOrderTypeHeader();
+      let total = 0, message = "您好，我想點餐：\n" + (header || "") + "------------------\n";
       items.forEach(([name, data]) => { message += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
       message += `------------------\n總金額：NT$ ${total}\n\n備註：`;
       return message;
     }
 
-    // --- ★★★ 核心：保證送出版 ★★★ ---
     function processLiffCheckout() {
       try {
           const items = Object.entries(cart);
           if (items.length === 0) return;
 
-          const message = generateOrderMessage();
-          
-          // 1. 背景傳送資料給記帳 Sheet
-          setTimeout(() => { trySendJSON(items); }, 10);
+          const header = getOrderTypeHeader();
+          if (currentOrderType === '內用' && !header) {
+              alert("請選擇桌號並輸入用餐人數！");
+              return; 
+          }
 
-          // 2. 準備連結
+          const message = generateOrderMessage();
+          setTimeout(() => { trySendJSON(items, header); }, 10);
+
           const encodedMsg = encodeURIComponent(message);
           const oaMessageUrl = `https://line.me/R/oaMessage/${CONFIG.lineId}/?${encodedMsg}`;
-          
-          // 3. 設定手動按鈕的連結
           document.getElementById('final-link').href = oaMessageUrl;
 
-          // 4. 判斷環境並嘗試自動/手動
           if (liff.isInClient()) {
-              // 嘗試自動發送
               liff.sendMessages([{ type: 'text', text: message }])
-                  .then(() => {
-                      liff.closeWindow();
-                  })
+                  .then(() => { liff.closeWindow(); })
                   .catch((err) => {
-                      console.error("Auto send failed", err);
-                      // ★★★ 自動失敗 -> 顯示大按鈕視窗 ★★★
                       document.getElementById('fallback-modal').style.display = 'flex';
                   });
           } else {
-              // 外部瀏覽器 -> 直接顯示大按鈕視窗
-              fallbackCopy(message, false); // 靜默複製備用
+              fallbackCopy(message, false); 
               document.getElementById('fallback-modal').style.display = 'flex';
           }
-
       } catch (e) {
           alert("發生錯誤：" + e.message);
       }
     }
 
-    function trySendJSON(items) {
+    function trySendJSON(items, header) {
         if (!CONFIG.scriptUrl.startsWith('http')) return;
         let total = 0, itemsString = "";
-        
-        // 將內用/外帶資訊也加入字串前頭，方便 Sheet 紀錄
         let typeStr = "";
-        if (orderInfo.type === '外帶') typeStr = "[外帶] ";
-        else if (orderInfo.type === '內用') typeStr = `[內用-桌號${orderInfo.table} (${orderInfo.guests}人)] `;
-
+        if (currentOrderType === '外帶') {
+            typeStr = "[外帶] ";
+        } else {
+            const table = document.getElementById('cart-table-select').value;
+            const guests = document.getElementById('cart-guest-input').value;
+            typeStr = `[內用-桌號${table} (${guests}人)] `;
+        }
         items.forEach(([name, data]) => { itemsString += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
-        
-        // 把類型加在 items 字串最前面
         itemsString = typeStr + "\n" + itemsString;
-
         const data = { items: itemsString, total: total, note: "網頁點餐(Live)" };
-        
-        // 使用 no-cors 模式
         fetch(CONFIG.scriptUrl, {
-            method: 'POST', 
-            mode: 'no-cors', 
-            keepalive: true,
+            method: 'POST', mode: 'no-cors', keepalive: true,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).catch(err => console.log('Track err', err));
     }
 
     function copyOrder() {
-      const message = generateOrderMessage();
-      fallbackCopy(message, false);
-      showToast("已複製，請貼上！");
+        const header = getOrderTypeHeader();
+        if (currentOrderType === '內用' && !header) {
+            alert("請選擇桌號並輸入用餐人數！");
+            return;
+        }
+        const message = generateOrderMessage();
+        fallbackCopy(message, false);
+        showToast("已複製，請貼上！");
     }
 
     function fallbackCopy(text, isAuto) {
