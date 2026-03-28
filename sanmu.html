@@ -373,7 +373,39 @@
         <p>1. 選購餐點後，點擊「去結帳」。</p>
         <p>2. 點擊「傳送訂單給三木」。</p>
         <p>3. 系統將自動發送訂單至 LINE 加入好友後送出。</p>
-        <p>4. 送出訂單後至櫃台確認訂單並結帳。</p>
+        <p>4. 送出訂單後服務     <h2 class="section-title">✨ 限定優惠</h2>
+      <div class="menu-grid" id="grid-specials">
+         <div class="menu-item special-item" onclick="openSetModal()">
+            <div class="badge">🕒 14:00-18:00 限定</div>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;">
+                <h3 style="font-size: 18px; font-weight: 700; margin: 0 0 4px 0; color: #5a4a3a;">三木獨享時光組</h3>
+                <p style="font-size: 13px; color: #8b7360; margin: 0 0 12px 0;">任選優格碗 + 指定飲品 = <span style="color: #d4af37; font-weight: bold;">現折 $20</span></p>
+                <button class="add-btn special-btn">立即選購 ></button>
+            </div>
+            <div style="width: 80px; height: 80px; background: #fffcf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 2px solid #f0e6d2; margin-left: 10px;">
+                🌿
+            </div>
+         </div>
+      </div>
+
+      <!-- ★★★ 動態容器放在優惠下方 ★★★ -->
+      <div id="menu-container">
+          <!-- JS 會自動把分類填入這裡 -->
+      </div>
+
+    </div>
+
+    <div id="rules" class="tab-content">
+      <div class="info-card">
+        <h3>⏰ 用餐時段</h3>
+        <p>14:00-21:30 (21:00最後點餐)</p>
+      </div>
+      <div class="info-card">
+        <h3>📝 點餐流程 (可至櫃台直接點餐)</h3>
+        <p>1. 選購餐點後，點擊「去結帳」。</p>
+        <p>2. 點擊「傳送訂單給三木」。</p>
+        <p>3. 系統將自動發送訂單至 LINE 加入好友後送出。</p>
+        <p>4. 送出訂單後服務人員會與您確認訂單。</p>
       </div>
       <div class="info-card">
         <h3>📋 店內須知</h3>
@@ -456,7 +488,7 @@
         </button>
       </div>
 
-      <p style="text-align: center; color: #d4af37; font-weight: bold; margin-top: 15px;">傳送訂單給三木後至櫃台確認訂單並結帳</p>
+      <p style="text-align: center; color: #d4af37; font-weight: bold; margin-top: 15px;">傳送訂單給三木後服務人員會與您確認訂單</p>
       
       <p style="font-size: 12px; color: #999; text-align: center; margin-top: 5px;">
         *若您在 LINE 中開啟，訂單將自動發送。<br>
