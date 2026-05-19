@@ -650,6 +650,59 @@
       showToast("已加入購物車");
     }
 
+    async function submitOrderToSheet() {
+        let totalPrice = 0;
+        const itemsArray = [];
+        for (let name in cart) {
+            itemsArray.push(`${name} x${cart[name].qty}`);
+            totalPrice += cart[name].price * cart[name].qty;
+        }
+
+        const table = document.getElementById('cart-table-select').value;
+        const guests = document.getElementById('cart-guest-input').value;
+
+        // 準備傳送給 GAS 的欄位資料
+        const payload = {
+            action: 'addOrder',
+            orderType: currentOrderType,
+            table: currentOrderType === '內用' ? table : '',
+            guests: currentOrderType === '內用' ? guests : '',
+            items: itemsArray.join(', '),
+            total: totalPrice,
+            rawText: generateOrderText()
+        };
+
+        try {
+            // 優先嘗試 GET 請求 (在 Google 雲端中最穩定，且不易因預檢產生 CORS 阻擋)
+            const params = new URLSearchParams(payload);
+            const response = await fetch(`${CONFIG.scriptUrl}?${params.toString()}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.success) {
+                    console.log("試算表寫入成功 (GET 方式)");
+                    return true;
+                }
+            }
+            throw new Error("GET response not ok");
+        } catch (err) {
+            console.warn("GET 寫入失敗，嘗試備用 no-cors POST 方案...", err);
+            try {
+                // 備用無跨域限制 POST (no-cors 即使瀏覽器不讀取回傳，也能保證將資料送達 GAS)
+                await fetch(CONFIG.scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                console.log("試算表寫入成功 (POST 方式)");
+                return true;
+            } catch (postErr) {
+                console.error("試算表寫入所有方式皆失敗:", postErr);
+                return false;
+            }
+        }
+    }
+
     function openSetModal() {
         const bowlSelect = document.getElementById('set-bowl-select');
         const drinkSelect = document.getElementById('set-drink-select');
@@ -854,13 +907,19 @@
         const orderText = generateOrderText();
         if (!orderText) return;
 
+        showToast("⏳ 正在將訂單送出...");
+
+        // 1. 同步上傳到 Google 試算表
+        await submitOrderToSheet();
+
+        // 2. 傳送 LINE 聊天室訊息
         if (liff.isLoggedIn() && liff.isInClient()) {
             try {
                 await liff.sendMessages([{
                     type: 'text',
                     text: orderText
                 }]);
-                showToast("🎉 訂單已自動傳送！");
+                showToast("🎉 訂單已傳送並記錄至系統！");
                 cart = {};
                 updateCartUI();
                 closeCart(null, true);
@@ -873,9 +932,14 @@
         }
     }
 
-    function copyOrder() {
+    async function copyOrder() {
         const orderText = generateOrderText();
         if (!orderText) return;
+
+        showToast("⏳ 正在記錄至系統並複製...");
+        
+        // 即使是純複製，也同步備份一份至 Google 試算表防遺失
+        await submitOrderToSheet();
 
         const tempTextArea = document.createElement("textarea");
         tempTextArea.value = orderText;
@@ -883,7 +947,7 @@
         tempTextArea.select();
         try {
             document.execCommand('copy');
-            showToast("📋 訂單已複製！請前往 LINE 貼上發送。");
+            showToast("📋 系統已記錄！點餐內容已複製成功，請前往 LINE 貼上發送。");
         } catch (err) {
             showToast("複製失敗，請手動複製。");
         }
