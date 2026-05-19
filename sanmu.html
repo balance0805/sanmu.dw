@@ -69,7 +69,7 @@
     .tab-content.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ★★★ Dynamic Section Styling ★★★ */
+    /* Section Header */
     .section-title {
       font-size: 20px; font-weight: 700; margin: 32px 0 16px;
       display: flex; align-items: center; gap: 8px; color: var(--primary);
@@ -125,8 +125,8 @@
     .add-btn:hover, .add-btn:active { background: var(--secondary); color: white; border-color: var(--secondary); }
     
     .special-btn {
-        background: var(--primary); color: white; border: none; width: auto; padding: 8px 24px;
-        align-self: flex-start; margin-top: 10px;
+      background: var(--primary); color: white; border: none; width: auto; padding: 8px 24px;
+      align-self: flex-start; margin-top: 10px;
     }
 
     /* Info & QA */
@@ -171,7 +171,7 @@
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* ★★★ 購物車專屬：全螢幕設定 ★★★ */
+    /* 購物車專屬：全螢幕設定 */
     #cart-modal .modal-content {
         height: 100%;
         max-height: 100%;
@@ -312,7 +312,6 @@
         animation: spin 1s linear infinite; margin-bottom: 15px;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
   </style>
 </head>
 <body>
@@ -338,16 +337,17 @@
 
   <div class="container">
     
+    <!-- 價目表 Tab -->
     <div id="pricing" class="tab-content active">
       
-      <!-- ★★★ 調整位置：將限定優惠移到最上方 ★★★ -->
+      <!-- 限定優惠區塊 -->
       <h2 class="section-title">✨ 限定優惠</h2>
       <div class="menu-grid" id="grid-specials">
          <div class="menu-item special-item" onclick="openSetModal()">
             <div class="badge">🕒 14:00-18:00 限定</div>
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;">
                 <h3 style="font-size: 18px; font-weight: 700; margin: 0 0 4px 0; color: #5a4a3a;">三木獨享時光組</h3>
-                <p style="font-size: 13px; color: #8b7360; margin: 0 0 12px 0;">任選優格碗 + 指定飲品 = <span style="color: #d4af37; font-weight: bold;">現折 $20</span></p>
+                <p style="font-size: 13px; color: #8b7360; margin: 0 0 12px 0;">任選優格碗/燕麥碗 + 指定飲品 = <span style="color: #d4af37; font-weight: bold;">現折 $20</span></p>
                 <button class="add-btn special-btn">立即選購 ></button>
             </div>
             <div style="width: 80px; height: 80px; background: #fffcf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 2px solid #f0e6d2; margin-left: 10px;">
@@ -356,50 +356,13 @@
          </div>
       </div>
 
-      <!-- ★★★ 動態容器放在優惠下方 ★★★ -->
+      <!-- 動態容器放在優惠下方 -->
       <div id="menu-container">
           <!-- JS 會自動把分類填入這裡 -->
       </div>
-
     </div>
 
-    <div id="rules" class="tab-content">
-      <div class="info-card">
-        <h3>⏰ 用餐時段</h3>
-        <p>14:00-21:30 (21:00最後點餐)</p>
-      </div>
-      <div class="info-card">
-        <h3>📝 點餐流程 (可至櫃台直接點餐)</h3>
-        <p>1. 選購餐點後，點擊「去結帳」。</p>
-        <p>2. 點擊「傳送訂單給三木」。</p>
-        <p>3. 系統將自動發送訂單至 LINE 加入好友後送出。</p>
-        <p>4. 送出訂單後服務人員會與您確認訂單
-      </div>
-      <div class="info-card">
-        <h3>📋 店內須知</h3>
-
-          <li>每人低消一份餐點或飲品（六歲以下免）。</li>
-
-          <li>客滿時用餐限時 90 分鐘。</li>
-
-          <li>店內全面禁菸，禁帶外食。</li>
-
-          <li>請愛惜店內環境與設施。</li>
-
-          <li>若有特殊飲食需求，請事先告知。</li>
-
-     <div class="info-card">
-            </div>
-         </div>
-      </div>
-
-      <!-- ★★★ 動態容器放在優惠下方 ★★★ -->
-      <div id="menu-container">
-          <!-- JS 會自動把分類填入這裡 -->
-      </div>
-
-    </div>
-
+    <!-- 用餐須知 Tab -->
     <div id="rules" class="tab-content">
       <div class="info-card">
         <h3>⏰ 用餐時段</h3>
@@ -424,6 +387,7 @@
       </div>
     </div>
 
+    <!-- 常見問題 Tab -->
     <div id="qa" class="tab-content">
       <div class="qa-item">
         <div class="qa-q">Q: 可以訂位嗎？</div>
@@ -445,6 +409,7 @@
 
   </div>
 
+  <!-- 底部購物車條 -->
   <div id="cart-bar" class="cart-bar" onclick="openCart()">
     <div class="cart-info">
       <span class="cart-count">已選 0 項</span>
@@ -453,6 +418,7 @@
     <button class="checkout-btn">查看明細 ></button>
   </div>
 
+  <!-- 購物車 Modal Overlay -->
   <div id="cart-modal" class="modal-overlay" onclick="closeCart(event)">
     <div class="modal-content">
       <div class="modal-header">
@@ -501,30 +467,37 @@
     </div>
   </div>
 
+  <!-- 下午茶獨享組彈窗 (整合優格碗 & 燕麥碗) -->
   <div id="set-modal" class="modal-overlay" onclick="closeSetModal(event)">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 style="font-size: 18px; font-weight: 700; color: #5a4a3a;">🌿 下午茶獨享組</h3>
+            <h3 style="font-size: 18px; font-weight: 700; color: #5a4a3a;">🌿 三木獨享時光組</h3>
             <button onclick="closeSetModal(null, true)" style="border:none; background:none; font-size: 24px; color:#999;">×</button>
         </div>
         
+        <!-- 第一步：選擇主要碗類 (優格碗與燕麥碗合併在此格選單) -->
         <div class="set-selector-group">
-            <label class="set-label">1. 選擇優格碗</label>
-            <select id="set-bowl-select" class="set-select" onchange="calculateSetPrice()"></select>
+            <label class="set-label">1. 選擇優格碗 / 燕麥碗</label>
+            <select id="set-bowl-select" class="set-select" onchange="calculateSetPrice()">
+                <!-- JS 動態將優格碗與燕麥碗以 optgroup 載入 -->
+            </select>
         </div>
 
+        <!-- 第二步：選擇飲品 -->
         <div class="set-selector-group">
             <label class="set-label">2. 選擇飲品 (不含酒精)</label>
-            <select id="set-drink-select" class="set-select" onchange="calculateSetPrice()"></select>
+            <select id="set-drink-select" class="set-select" onchange="calculateSetPrice()">
+                <!-- JS 動態將飲品載入 -->
+            </select>
         </div>
 
         <div class="set-summary">
-            <span class="set-note" id="set-original-price">NT$ 250</span>
-            <span class="set-price-display" id="set-final-price">NT$ 220</span>
-            <div style="font-size: 12px; color: #d4af37; font-weight: bold; margin-top: 4px;">✨ 已折抵 $20</div>
+            <span class="set-note" id="set-original-price">NT$ 0</span>
+            <span class="set-price-display" id="set-final-price">NT$ 0</span>
+            <div style="font-size: 12px; color: #d4af37; font-weight: bold; margin-top: 4px;">✨ 限定組合現折 $20</div>
         </div>
 
-        <button onclick="addSetToCart()" class="line-btn" style="background: var(--primary);">
+        <button onclick="addSetToCart()" class="line-btn" style="background: var(--primary); box-shadow: 0 4px 12px rgba(139, 115, 95, 0.2);">
             + 加入購物車
         </button>
     </div>
@@ -539,7 +512,7 @@
           <h3 style="font-size: 20px; font-weight: bold; color: #333; margin-bottom: 10px;">準備傳送訂單</h3>
           <p style="color: #666; font-size: 14px; margin-bottom: 10px;">請點擊下方按鈕，將自動開啟 LINE 聊天室並貼上內容。</p>
           <a id="final-link" href="#" class="fallback-btn" target="_parent">
-             🚀 點此開啟 LINE 傳送
+              🚀 點此開啟 LINE 傳送
           </a>
           <button onclick="document.getElementById('fallback-modal').style.display='none'" style="margin-top: 15px; background: none; border: none; color: #999; text-decoration: underline;">取消</button>
       </div>
@@ -553,7 +526,6 @@
       scriptUrl: 'https://script.google.com/macros/s/AKfycbwPCxbt44bQAtf_zY1b0Kz1hrrnO3G1r6V-OqUow-Xq56tzDNKXP7Mab3UoRKs4UxxA/exec',
       defaultImages: {
         '海島莓果能量碗': 'https://lh3.googleusercontent.com/d/1GNyEZ0HcvDM_S2CUkbteWa2Zhtdkq54q',
-        // ... (其他預設圖片可保留作為備用)
       }
     };
 
@@ -561,6 +533,7 @@
     let MENU = {}; 
     let cart = {};
     let currentOrderType = '內用'; 
+    let categoriesOrder = []; // 記錄分類順序
 
     async function initLiff() {
       try {
@@ -599,9 +572,6 @@
       }, 500);
     }
 
-    // ★★★ 核心：抓取並處理菜單 ★★★
-    let categoriesOrder = []; // 記錄分類順序
-
     async function fetchMenuData() {
         try {
             const response = await fetch(`${CONFIG.scriptUrl}?action=getMenu`);
@@ -609,7 +579,7 @@
             
             if (data && data.menu) {
                 MENU = data.menu;
-                categoriesOrder = data.order || Object.keys(MENU); // 如果後端有傳順序就用，沒有就隨機
+                categoriesOrder = data.order || Object.keys(MENU); 
                 console.log("Menu loaded:", MENU);
             }
         } catch (e) {
@@ -617,7 +587,6 @@
         }
     }
 
-    // ★★★ 核心：動態產生網頁內容 ★★★
     function renderDynamicMenu() {
         const container = document.getElementById('menu-container');
         container.innerHTML = ''; // 清空
@@ -627,7 +596,7 @@
             const items = MENU[categoryTitle];
             if (!items || items.length === 0) return;
 
-            // 1. 建立標題 (例如 "🥣 優格碗類")
+            // 1. 建立標題
             const titleEl = document.createElement('h2');
             titleEl.className = 'section-title';
             titleEl.textContent = categoryTitle;
@@ -639,7 +608,6 @@
             
             // 3. 填入商品
             const itemsHtml = items.map(item => {
-                // 如果 Sheet 沒填圖片，試著找預設圖，再沒有就顯示 Icon
                 const imgUrl = item.image || CONFIG.defaultImages[item.name];
                 const imgHtml = imgUrl ? `<img src="${imgUrl}" onerror="this.parentElement.innerHTML='🍴'">` : `<span style="font-size: 32px;">🍴</span>`;
                 
@@ -657,7 +625,6 @@
         });
     }
 
-    // ... (以下為標準購物車與 LIFF 邏輯，保持不變) ...
     function setOrderType(type) {
         currentOrderType = type;
         const dineBtn = document.getElementById('opt-dinein');
@@ -684,25 +651,95 @@
     }
 
     function openSetModal() {
-        // 特別處理：優惠組合的選單內容也需要動態抓取嗎？
-        // 目前先維持抓 yogurt 和 drinks 類別，若您改了 Sheet 的類別名稱 (例如改成 "🥣 優格")，這裡可能要微調
-        // 簡單解法：這裡先寫死讀取含有 "優格" 和 "飲/茶/奶" 關鍵字的類別
-        
-        // 暫時維持舊邏輯，若 Sheet 類別名稱大改，這裡需要對應修改
         const bowlSelect = document.getElementById('set-bowl-select');
         const drinkSelect = document.getElementById('set-drink-select');
         
-        // 嘗試從動態 MENU 中找出適合的選項 (這裡做一個簡單的關鍵字搜尋)
-        let yogurtItems = [];
-        let drinkItems = [];
+        bowlSelect.innerHTML = '';
+        drinkSelect.innerHTML = '';
 
+        // 建立優格碗與燕麥碗的群組 (optgroup)
+        const yogurtGroup = document.createElement('optgroup');
+        yogurtGroup.label = "🥣 優格碗系列 (Yogurt)";
+        let yogurtCount = 0;
+
+        const oatGroup = document.createElement('optgroup');
+        oatGroup.label = "🌾 燕麥碗系列 (Oats)";
+        let oatCount = 0;
+
+        const drinkGroup = document.createElement('optgroup');
+        drinkGroup.label = "☕ 特選飲品系列";
+        let drinkCount = 0;
+
+        // 遍歷動態菜單
         Object.keys(MENU).forEach(key => {
-            if (key.includes('優格') || key.includes('yogurt')) yogurtItems = yogurtItems.concat(MENU[key]);
-            if (key.includes('飲') || key.includes('奶') || key.includes('茶') || key.includes('drinks')) drinkItems = drinkItems.concat(MENU[key]);
+            const lowerKey = key.toLowerCase();
+            const items = MENU[key];
+
+            if (lowerKey.includes('優格') || lowerKey.includes('yogurt')) {
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = `${item.name}|${item.price}`;
+                    option.text = `${item.name} (+ $${item.price})`;
+                    yogurtGroup.appendChild(option);
+                    yogurtCount++;
+                });
+            } else if (lowerKey.includes('燕麥') || lowerKey.includes('oat')) {
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = `${item.name}|${item.price}`;
+                    option.text = `${item.name} (+ $${item.price})`;
+                    oatGroup.appendChild(option);
+                    oatCount++;
+                });
+            } else if (lowerKey.includes('飲') || lowerKey.includes('奶') || lowerKey.includes('茶') || lowerKey.includes('drink') || lowerKey.includes('tea')) {
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = `${item.name}|${item.price}`;
+                    option.text = `${item.name} (+ $${item.price})`;
+                    drinkGroup.appendChild(option);
+                    drinkCount++;
+                });
+            }
         });
 
-        bowlSelect.innerHTML = yogurtItems.map(item => `<option value="${item.name}|${item.price}">${item.name}</option>`).join('');
-        drinkSelect.innerHTML = drinkItems.map(item => `<option value="${item.name}|${item.price}">${item.name}</option>`).join('');
+        // 塞入主要的碗類下拉選單中
+        if (yogurtCount > 0) bowlSelect.appendChild(yogurtGroup);
+        if (oatCount > 0) bowlSelect.appendChild(oatGroup);
+
+        // 如果找不到任何分類 (防呆機制：將非飲品當作主碗)
+        if (yogurtCount === 0 && oatCount === 0) {
+            const generalGroup = document.createElement('optgroup');
+            generalGroup.label = "🥣 特選主餐";
+            Object.keys(MENU).forEach(key => {
+                if (!key.includes('飲') && !key.includes('奶') && !key.includes('茶')) {
+                    MENU[key].forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = `${item.name}|${item.price}`;
+                        option.text = `${item.name} (+ $${item.price})`;
+                        generalGroup.appendChild(option);
+                    });
+                }
+            });
+            bowlSelect.appendChild(generalGroup);
+        }
+
+        // 塞入飲品下拉選單
+        if (drinkCount > 0) {
+            drinkSelect.appendChild(drinkGroup);
+        } else {
+            // 防呆：如果抓不到有「飲/茶/奶」名稱的類別，則載入全部品項
+            const fallbackDrinkGroup = document.createElement('optgroup');
+            fallbackDrinkGroup.label = "☕ 特選飲品";
+            Object.keys(MENU).forEach(key => {
+                MENU[key].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = `${item.name}|${item.price}`;
+                    option.text = `${item.name} (+ $${item.price})`;
+                    fallbackDrinkGroup.appendChild(option);
+                });
+            });
+            drinkSelect.appendChild(fallbackDrinkGroup);
+        }
         
         calculateSetPrice();
         document.getElementById('set-modal').classList.add('open');
@@ -713,9 +750,14 @@
     }
 
     function calculateSetPrice() {
-        const bowlVal = document.getElementById('set-bowl-select').value.split('|');
-        const drinkVal = document.getElementById('set-drink-select').value.split('|');
-        if (!bowlVal[1] || !drinkVal[1]) return; // 防呆
+        const bowlSelect = document.getElementById('set-bowl-select');
+        const drinkSelect = document.getElementById('set-drink-select');
+        if (!bowlSelect.value || !drinkSelect.value) return;
+
+        const bowlVal = bowlSelect.value.split('|');
+        const drinkVal = drinkSelect.value.split('|');
+        if (!bowlVal[1] || !drinkVal[1]) return; 
+        
         const originalTotal = parseInt(bowlVal[1]) + parseInt(drinkVal[1]);
         const finalTotal = originalTotal - 20; 
         document.getElementById('set-original-price').innerText = `NT$ ${originalTotal}`;
@@ -780,117 +822,108 @@
             const guests = document.getElementById('cart-guest-input').value;
             if (!table) return null; 
             if (!guests || guests <= 0) return null; 
-            return `【內用-桌號${table} (${guests}人)】\n`;
+            return `【內用】桌號：${table} / 人數：${guests}人\n`;
         }
     }
 
-    function generateOrderMessage() {
-      const items = Object.entries(cart);
-      if (items.length === 0) return "";
-      const header = getOrderTypeHeader();
-      let total = 0, message = "您好，我想點餐：\n" + (header || "") + "------------------\n";
-      items.forEach(([name, data]) => { message += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
-      message += `------------------\n總金額：NT$ ${total}\n\n備註：`;
-      return message;
+    function generateOrderText() {
+        const header = getOrderTypeHeader();
+        if (!header) {
+            showToast("⚠️ 請填寫完整的內用資訊 (桌號與人數)！");
+            return null;
+        }
+        
+        let text = `🌿 SANMU 三木 點餐單 🌿\n`;
+        text += `------------------------\n`;
+        text += header;
+        text += `------------------------\n`;
+        
+        let totalPrice = 0;
+        for (let name in cart) {
+            const item = cart[name];
+            text += `▪ ${name} x${item.qty} $${item.price * item.qty}\n`;
+            totalPrice += item.price * item.qty;
+        }
+        text += `------------------------\n`;
+        text += `總計金額：NT$ ${totalPrice}\n\n`;
+        text += `* 傳送後，請稍候，服務人員將與您確認訂單！`;
+        return text;
     }
 
-    function processLiffCheckout() {
-      try {
-          const items = Object.entries(cart);
-          if (items.length === 0) return;
+    async function processLiffCheckout() {
+        const orderText = generateOrderText();
+        if (!orderText) return;
 
-          const header = getOrderTypeHeader();
-          if (currentOrderType === '內用' && !header) {
-              alert("請選擇桌號並輸入用餐人數！");
-              return; 
-          }
-
-          const message = generateOrderMessage();
-          setTimeout(() => { trySendJSON(items, header); }, 10);
-
-          const encodedMsg = encodeURIComponent(message);
-          const oaMessageUrl = `https://line.me/R/oaMessage/${CONFIG.lineId}/?${encodedMsg}`;
-          document.getElementById('final-link').href = oaMessageUrl;
-
-          if (liff.isInClient()) {
-              liff.sendMessages([{ type: 'text', text: message }])
-                  .then(() => { liff.closeWindow(); })
-                  .catch((err) => {
-                      document.getElementById('fallback-modal').style.display = 'flex';
-                  });
-          } else {
-              fallbackCopy(message, false); 
-              document.getElementById('fallback-modal').style.display = 'flex';
-          }
-      } catch (e) {
-          alert("發生錯誤：" + e.message);
-      }
-    }
-
-    function trySendJSON(items, header) {
-        if (!CONFIG.scriptUrl.startsWith('http')) return;
-        let total = 0, itemsString = "";
-        let typeStr = "";
-        if (currentOrderType === '外帶') {
-            typeStr = "[外帶] ";
+        if (liff.isLoggedIn() && liff.isInClient()) {
+            try {
+                await liff.sendMessages([{
+                    type: 'text',
+                    text: orderText
+                }]);
+                showToast("🎉 訂單已自動傳送！");
+                cart = {};
+                updateCartUI();
+                closeCart(null, true);
+            } catch (err) {
+                console.error("Send message failed", err);
+                showFallbackModal(orderText);
+            }
         } else {
-            const table = document.getElementById('cart-table-select').value;
-            const guests = document.getElementById('cart-guest-input').value;
-            typeStr = `[內用-桌號${table} (${guests}人)] `;
+            showFallbackModal(orderText);
         }
-        items.forEach(([name, data]) => { itemsString += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
-        itemsString = typeStr + "\n" + itemsString;
-        const data = { items: itemsString, total: total, note: "網頁點餐(Live)" };
-        fetch(CONFIG.scriptUrl, {
-            method: 'POST', mode: 'no-cors', keepalive: true,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).catch(err => console.log('Track err', err));
     }
 
     function copyOrder() {
-        const header = getOrderTypeHeader();
-        if (currentOrderType === '內用' && !header) {
-            alert("請選擇桌號並輸入用餐人數！");
-            return;
+        const orderText = generateOrderText();
+        if (!orderText) return;
+
+        const tempTextArea = document.createElement("textarea");
+        tempTextArea.value = orderText;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        try {
+            document.execCommand('copy');
+            showToast("📋 訂單已複製！請前往 LINE 貼上發送。");
+        } catch (err) {
+            showToast("複製失敗，請手動複製。");
         }
-        const message = generateOrderMessage();
-        fallbackCopy(message, false);
-        showToast("已複製，請貼上！");
+        document.body.removeChild(tempTextArea);
     }
 
-    function fallbackCopy(text, isAuto) {
-      try {
-          var textArea = document.createElement("textarea");
-          textArea.value = text;
-          textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0";
-          textArea.setAttribute('readonly', '');
-          document.body.appendChild(textArea);
-          textArea.select(); textArea.setSelectionRange(0, 99999);
-          document.execCommand('copy'); 
-          document.body.removeChild(textArea);
-      } catch (err) {}
+    function showFallbackModal(text) {
+        // 先幫顧客複製，以免跳出後遺失
+        const tempTextArea = document.createElement("textarea");
+        tempTextArea.value = text;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+
+        const lineLink = `https://line.me/R/oaMessage/${CONFIG.lineId}/?${encodeURIComponent(text)}`;
+        document.getElementById('final-link').href = lineLink;
+        document.getElementById('fallback-modal').style.display = 'flex';
     }
 
-    function showToast(html) {
-      const toast = document.getElementById('toast');
-      toast.innerHTML = html;
-      toast.classList.add('show');
-      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
     }
 
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      const btns = document.querySelectorAll('.tab-btn');
-      if (tabId === 'pricing') btns[0].classList.add('active');
-      if (tabId === 'rules') btns[1].classList.add('active');
-      if (tabId === 'qa') btns[2].classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
-    init();
+    window.onload = function() {
+        init();
+    };
   </script>
 </body>
 </html>
-
