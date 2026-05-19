@@ -875,119 +875,116 @@
             const guests = document.getElementById('cart-guest-input').value;
             if (!table) return null; 
             if (!guests || guests <= 0) return null; 
-            return `【內用】桌號：${table} / 人數：${guests}人\n`;
+            return `【內用-桌號${table} (${guests}人)】\n`;
         }
     }
 
-    function generateOrderText() {
-        const header = getOrderTypeHeader();
-        if (!header) {
-            showToast("⚠️ 請填寫完整的內用資訊 (桌號與人數)！");
-            return null;
-        }
-        
-        let text = `🌿 SANMU 三木 點餐單 🌿\n`;
-        text += `------------------------\n`;
-        text += header;
-        text += `------------------------\n`;
-        
-        let totalPrice = 0;
-        for (let name in cart) {
-            const item = cart[name];
-            text += `▪ ${name} x${item.qty} $${item.price * item.qty}\n`;
-            totalPrice += item.price * item.qty;
-        }
-        text += `------------------------\n`;
-        text += `總計金額：NT$ ${totalPrice}\n\n`;
-        text += `* 傳送後，請稍候，服務人員將與您確認訂單！`;
-        return text;
+    function generateOrderMessage() {
+      const items = Object.entries(cart);
+      if (items.length === 0) return "";
+      const header = getOrderTypeHeader();
+      let total = 0, message = "您好，我想點餐：\n" + (header || "") + "------------------\n";
+      items.forEach(([name, data]) => { message += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
+      message += `------------------\n總金額：NT$ ${total}\n\n備註：`;
+      return message;
     }
 
-    async function processLiffCheckout() {
-        const orderText = generateOrderText();
-        if (!orderText) return;
+    function processLiffCheckout() {
+      try {
+          const items = Object.entries(cart);
+          if (items.length === 0) return;
 
-        showToast("⏳ 正在將訂單送出...");
+          const header = getOrderTypeHeader();
+          if (currentOrderType === '內用' && !header) {
+              alert("請選擇桌號並輸入用餐人數！");
+              return; 
+          }
 
-        // 1. 同步上傳到 Google 試算表
-        await submitOrderToSheet();
+          const message = generateOrderMessage();
+          setTimeout(() => { trySendJSON(items, header); }, 10);
 
-        // 2. 傳送 LINE 聊天室訊息
-        if (liff.isLoggedIn() && liff.isInClient()) {
-            try {
-                await liff.sendMessages([{
-                    type: 'text',
-                    text: orderText
-                }]);
-                showToast("🎉 訂單已傳送並記錄至系統！");
-                cart = {};
-                updateCartUI();
-                closeCart(null, true);
-            } catch (err) {
-                console.error("Send message failed", err);
-                showFallbackModal(orderText);
-            }
+          const encodedMsg = encodeURIComponent(message);
+          const oaMessageUrl = `https://line.me/R/oaMessage/${CONFIG.lineId}/?${encodedMsg}`;
+          document.getElementById('final-link').href = oaMessageUrl;
+
+          if (liff.isInClient()) {
+              liff.sendMessages([{ type: 'text', text: message }])
+                  .then(() => { liff.closeWindow(); })
+                  .catch((err) => {
+                      document.getElementById('fallback-modal').style.display = 'flex';
+                  });
+          } else {
+              fallbackCopy(message, false); 
+              document.getElementById('fallback-modal').style.display = 'flex';
+          }
+      } catch (e) {
+          alert("發生錯誤：" + e.message);
+      }
+    }
+
+    function trySendJSON(items, header) {
+        if (!CONFIG.scriptUrl.startsWith('http')) return;
+        let total = 0, itemsString = "";
+        let typeStr = "";
+        if (currentOrderType === '外帶') {
+            typeStr = "[外帶] ";
         } else {
-            showFallbackModal(orderText);
+            const table = document.getElementById('cart-table-select').value;
+            const guests = document.getElementById('cart-guest-input').value;
+            typeStr = `[內用-桌號${table} (${guests}人)] `;
         }
+        items.forEach(([name, data]) => { itemsString += `${name} x ${data.qty}\n`; total += data.price * data.qty; });
+        itemsString = typeStr + "\n" + itemsString;
+        const data = { items: itemsString, total: total, note: "網頁點餐(Live)" };
+        fetch(CONFIG.scriptUrl, {
+            method: 'POST', mode: 'no-cors', keepalive: true,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).catch(err => console.log('Track err', err));
     }
 
-    async function copyOrder() {
-        const orderText = generateOrderText();
-        if (!orderText) return;
-
-        showToast("⏳ 正在記錄至系統並複製...");
-        
-        // 即使是純複製，也同步備份一份至 Google 試算表防遺失
-        await submitOrderToSheet();
-
-        const tempTextArea = document.createElement("textarea");
-        tempTextArea.value = orderText;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-        try {
-            document.execCommand('copy');
-            showToast("📋 系統已記錄！點餐內容已複製成功，請前往 LINE 貼上發送。");
-        } catch (err) {
-            showToast("複製失敗，請手動複製。");
+    function copyOrder() {
+        const header = getOrderTypeHeader();
+        if (currentOrderType === '內用' && !header) {
+            alert("請選擇桌號並輸入用餐人數！");
+            return;
         }
-        document.body.removeChild(tempTextArea);
+        const message = generateOrderMessage();
+        fallbackCopy(message, false);
+        showToast("已複製，請貼上！");
     }
 
-    function showFallbackModal(text) {
-        // 先幫顧客複製，以免跳出後遺失
-        const tempTextArea = document.createElement("textarea");
-        tempTextArea.value = text;
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempTextArea);
-
-        const lineLink = `https://line.me/R/oaMessage/${CONFIG.lineId}/?${encodeURIComponent(text)}`;
-        document.getElementById('final-link').href = lineLink;
-        document.getElementById('fallback-modal').style.display = 'flex';
+    function fallbackCopy(text, isAuto) {
+      try {
+          var textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0";
+          textArea.setAttribute('readonly', '');
+          document.body.appendChild(textArea);
+          textArea.select(); textArea.setSelectionRange(0, 99999);
+          document.execCommand('copy'); 
+          document.body.removeChild(textArea);
+      } catch (err) {}
     }
 
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.innerText = msg;
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
+    function showToast(html) {
+      const toast = document.getElementById('toast');
+      toast.innerHTML = html;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
     }
 
     function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      const btns = document.querySelectorAll('.tab-btn');
+      if (tabId === 'pricing') btns[0].classList.add('active');
+      if (tabId === 'rules') btns[1].classList.add('active');
+      if (tabId === 'qa') btns[2].classList.add('active');
     }
 
-    window.onload = function() {
-        init();
-    };
+    init();
   </script>
 </body>
 </html>
